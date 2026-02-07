@@ -2,49 +2,33 @@ const chatBox = document.getElementById('chat-box');
 const input = document.getElementById('user-input');
 const sendBtn = document.getElementById('send-btn');
 
-// ⚠️ Use your OpenAI API key here (Local only)
-const API_KEY = "PASTE_YOUR_API_KEY_HERE";
+// Use your Render backend URL here
+const BACKEND_URL = "https://nova-ai-backend-578r.onrender.com/api/chat";
 
 async function sendMessage() {
   const text = input.value.trim();
   if (!text) return;
 
   // Show user message
-  const userMsg = document.createElement('div');
-  userMsg.classList.add('message', 'user');
-  userMsg.textContent = `You: ${text}`;
-  chatBox.appendChild(userMsg);
-
-  // Clear input
+  chatBox.innerHTML += `<div class="message user">You: ${text}</div>`;
   input.value = '';
-
-  // Call OpenAI API
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${API_KEY}`
-    },
-    body: JSON.stringify({
-      model: "gpt-4.1-mini",
-      messages: [
-        { role: "system", content: "You are a helpful AI." },
-        { role: "user", content: text }
-      ]
-    })
-  });
-
-  const data = await response.json();
-  const aiText = data.choices[0].message.content;
-
-  // Show AI message
-  const aiMsg = document.createElement('div');
-  aiMsg.classList.add('message', 'ai');
-  aiMsg.textContent = `AI: ${aiText}`;
-  chatBox.appendChild(aiMsg);
-
   chatBox.scrollTop = chatBox.scrollHeight;
+
+  try {
+    const res = await fetch(BACKEND_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text })
+    });
+
+    const data = await res.json();
+    chatBox.innerHTML += `<div class="message ai">Nova AI: ${data.reply}</div>`;
+    chatBox.scrollTop = chatBox.scrollHeight;
+  } catch (err) {
+    chatBox.innerHTML += `<div class="message ai">Error: Cannot reach Nova AI backend</div>`;
+  }
 }
 
+// Event listeners
 sendBtn.addEventListener('click', sendMessage);
 input.addEventListener('keypress', e => { if (e.key === 'Enter') sendMessage(); });
