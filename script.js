@@ -1,44 +1,50 @@
 const chatBox = document.getElementById('chat-box');
-const userInput = document.getElementById('user-input');
+const input = document.getElementById('user-input');
 const sendBtn = document.getElementById('send-btn');
 
-// Predefined responses
-const responses = {
-  hello: "Hello there! How can I help you?",
-  bye: "Goodbye! Have a great day!",
-  help: "I can answer simple questions. Try saying 'hello' or 'bye'."
-};
+// ⚠️ Use your OpenAI API key here (Local only)
+const API_KEY = "PASTE_YOUR_API_KEY_HERE";
 
-function sendMessage() {
-  const text = userInput.value.trim();
+async function sendMessage() {
+  const text = input.value.trim();
   if (!text) return;
 
   // Show user message
   const userMsg = document.createElement('div');
   userMsg.classList.add('message', 'user');
-  userMsg.textContent = text;
+  userMsg.textContent = `You: ${text}`;
   chatBox.appendChild(userMsg);
 
-  // Generate AI response
+  // Clear input
+  input.value = '';
+
+  // Call OpenAI API
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${API_KEY}`
+    },
+    body: JSON.stringify({
+      model: "gpt-4.1-mini",
+      messages: [
+        { role: "system", content: "You are a helpful AI." },
+        { role: "user", content: text }
+      ]
+    })
+  });
+
+  const data = await response.json();
+  const aiText = data.choices[0].message.content;
+
+  // Show AI message
   const aiMsg = document.createElement('div');
   aiMsg.classList.add('message', 'ai');
-
-  let found = false;
-  for (let key in responses) {
-    if (text.toLowerCase().includes(key)) {
-      aiMsg.textContent = responses[key];
-      found = true;
-      break;
-    }
-  }
-  if (!found) aiMsg.textContent = "I'm not sure how to respond to that.";
-
+  aiMsg.textContent = `AI: ${aiText}`;
   chatBox.appendChild(aiMsg);
+
   chatBox.scrollTop = chatBox.scrollHeight;
-  userInput.value = '';
 }
 
 sendBtn.addEventListener('click', sendMessage);
-userInput.addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') sendMessage();
-});
+input.addEventListener('keypress', e => { if (e.key === 'Enter') sendMessage(); });
