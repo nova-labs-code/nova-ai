@@ -4,16 +4,24 @@ body {
   height: 100vh; background: #121212; color: #fff;
 }
 .chat-container {
-  width: 400px; background: #1e1e1e; padding: 15px; border-radius: 10px;
+  width: 90%; max-width: 400px; background: #1e1e1e; padding: 15px; border-radius: 10px;
   display: flex; flex-direction: column;
 }
+h1 { text-align: center; margin-bottom: 10px; }
 #chat-box {
   height: 300px; overflow-y: auto; border: 1px solid #333; padding: 10px; margin-bottom: 10px;
-  background: #111;
+  background: #111; border-radius: 5px;
 }
-.message { margin: 6px 0; }
+.message { margin: 6px 0; word-wrap: break-word; }
 .user { color: #4da6ff; }
 .ai { color: #7CFC00; }
-input { padding: 8px; width: 75%; margin-right: 5px; border-radius: 5px; border:none; }
-button { padding: 8px; width: 20%; border-radius: 5px; border:none; background: #4da6ff; color:#fff; cursor:pointer; }
+.input-row { display: flex; gap: 5px; }
+input {
+  padding: 8px; flex: 1;
+  border-radius: 5px; border:none;
+}
+button {
+  padding: 8px; border-radius: 5px; border:none;
+  background: #4da6ff; color:#fff; cursor:pointer;
+}
 button:hover { background: #357ab8; }
