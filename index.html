@@ -3,18 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Homemade AI Chat</title>
+<title>Keyless AI Chat</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="chat-container">
-  <h1>Nova AI</h1>
-  <div id="chat-box"></div>
-  <div class="input-row">
-    <input type="text" id="user-input" placeholder="Type a message..." />
-    <button id="send-btn">Send</button>
+  <div class="chat-container">
+    <h1>Keyless AI</h1>
+    <div id="chat-box"></div>
+    <div class="input-row">
+      <input type="text" id="user-input" placeholder="Say something..." />
+      <button id="send-btn">Send</button>
+    </div>
   </div>
-</div>
-<script src="script.js"></script>
+
+  <!-- TensorFlow.js -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0/dist/tf.min.js"></script>
+  <!-- Tiny text generation model -->
+  <script src="https://cdn.jsdelivr.net/npm/@xenova/transformers@2.3.0/dist/transformers.min.js"></script>
+
+  <script src="script.js"></script>
 </body>
 </html>
