@@ -1,70 +1,52 @@
-const chatBox = document.getElementById('chat-box');
-const input = document.getElementById('user-input');
-const sendBtn = document.getElementById('send-btn');
+const chatBox = document.getElementById("chat-box");
+const input = document.getElementById("user-input");
+const sendBtn = document.getElementById("send-btn");
 
-// Memory system
-let knowledgePoints = JSON.parse(localStorage.getItem('knowledgePoints') || "{}");
+// Load text generation model
+let generator;
 
-// Tiny AI fallback replies
-const genericReplies = [
-  "Interesting, tell me more!",
-  "Hmm, I need to learn more about that.",
-  "Can you explain it differently?",
-  "Let's figure this out together."
-];
+async function loadModel() {
+  // This is a very small keyless text generation model
+  // optimized for browser use
+  generator = await window.transformers.AutoModelForCausalLM.from_pretrained(
+    "Xenova/tiny‑gpt2‑distilled",
+    { quantized: true } // smaller
+  );
+}
+loadModel();
 
-// Fetch info from Wikipedia keyless API
-async function fetchWikipedia(query) {
-  try {
-    const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(query)}`);
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data.extract || null;
-  } catch {
-    return null;
-  }
+async function generateText(prompt) {
+  if (!generator) return "AI still loading model… please wait.";
+  const output = await generator.generate(prompt, {
+    max_new_tokens: 50,
+    temperature: 0.7
+  });
+  return output.generated_text || "I don't know what to say yet.";
 }
 
-// AI reply generator
-async function generateReply(userMessage) {
-  const topic = userMessage.toLowerCase();
-
-  // Memory check first
-  if (knowledgePoints[topic]) return knowledgePoints[topic];
-
-  // Try Wikipedia scraping
-  const wikiInfo = await fetchWikipedia(topic);
-  if (wikiInfo) {
-    knowledgePoints[topic] = wikiInfo;
-    localStorage.setItem('knowledgePoints', JSON.stringify(knowledgePoints));
-    return wikiInfo;
-  }
-
-  // Otherwise, fallback reply
-  return genericReplies[Math.floor(Math.random() * genericReplies.length)];
-}
-
-// Send message
 async function sendMessage() {
   const text = input.value.trim();
   if (!text) return;
 
   chatBox.innerHTML += `<div class="message user">You: ${text}</div>`;
-  input.value = '';
+  input.value = "";
   chatBox.scrollTop = chatBox.scrollHeight;
 
-  // AI typing effect
-  const typingDiv = document.createElement('div');
-  typingDiv.className = 'message ai';
-  typingDiv.textContent = 'AI is thinking...';
-  chatBox.appendChild(typingDiv);
+  // show typing indicator
+  const typing = document.createElement("div");
+  typing.className = "message ai";
+  typing.textContent = "AI is thinking…";
+  chatBox.appendChild(typing);
   chatBox.scrollTop = chatBox.scrollHeight;
 
-  const reply = await generateReply(text);
-  typingDiv.textContent = `AI: ${reply}`;
+  // get AI reply
+  const reply = await generateText(text);
+
+  typing.textContent = `AI: ${reply}`;
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// Event listeners
-sendBtn.addEventListener('click', sendMessage);
-input.addEventListener('keypress', e => { if(e.key === 'Enter') sendMessage(); });
+sendBtn.addEventListener("click", sendMessage);
+input.addEventListener("keypress", e => {
+  if (e.key === "Enter") sendMessage();
+});
