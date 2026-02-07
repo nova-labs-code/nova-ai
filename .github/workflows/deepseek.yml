@@ -1,0 +1,31 @@
+name: DeepSeek R1 AI
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deepseek:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Run DeepSeek R1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          curl https://models.inference.ai.azure.com/chat/completions \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -d '{
+              "model": "deepseek-r1",
+              "messages": [
+                {
+                  "role": "system",
+                  "content": "You are a helpful assistant for a family recipe website."
+                },
+                {
+                  "role": "user",
+                  "content": "List all possible recipe categories for a cooking website."
+                }
+              ],
+              "temperature": 0.7
+            }'
